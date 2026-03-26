@@ -10,14 +10,22 @@ import { TodoList } from './components/TodoList';
 
 export const App = () => {
   const preparedTodos = useMemo(() => {
-    const userMap = Object.fromEntries(
-      usersFromServer.map(user => [user.id, user]),
-    );
+    return todosFromServer
+      .map(todo => {
+        const user = usersFromServer.find(
+          currentUser => currentUser.id === todo.userId,
+        );
 
-    return todosFromServer.map(todo => ({
-      ...todo,
-      user: userMap[todo.userId],
-    }));
+        if (!user) {
+          return null;
+        }
+
+        return {
+          ...todo,
+          user,
+        };
+      })
+      .filter(Boolean) as TodoWithUser[];
   }, []);
 
   const [todos, setTodos] = useState<TodoWithUser[]>(preparedTodos);
